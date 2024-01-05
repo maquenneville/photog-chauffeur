@@ -5,9 +5,9 @@ PhotogChauffeur is a Python-based tool that allows users to search through a col
 
 ### Example Search Phrases:
 
--"Which images have more than one person in them?"
--"Show me all images with dim lighting."
--"Provide me with all images where people are wearing hats."
+- "Which images have more than one person in them?"
+- "Show me all images with dim lighting."
+- "Provide me with all images where people are wearing hats."
 
 ## Features
 - Image search using natural language queries.
