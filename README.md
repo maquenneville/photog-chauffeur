@@ -1,7 +1,7 @@
 # PhotogChauffeur
 
 ## Overview
-PhotogChauffeur is a Python-based tool that allows users to search through a collection of images in a specified folder using natural language queries. The program utilizes OpenAI's GPT-4 Vision API to visualize the input image and return relevant images based on the query. Results can be saved to a designated folder for further use.
+PhotogChauffeur is a Python-based tool that allows users to search through a collection of images in a specified folder using natural language queries. The program utilizes OpenAI's GPT-4 Vision API to visualize the input images and return relevant images based on the query. Results can be saved to a designated folder for further use.
 
 #### Example Search Phrases:
 
@@ -45,6 +45,11 @@ Follow the on-screen prompts to enter the folder paths and search queries. Type 
 
 ## Limitations
 This tool is not perfect at applying the search query, and is only as powerful as the machine vision capabilities of gpt-4-vision-preview.  It may take multiple attempts with different phrasing, or simply not be able to find images with certain parameters.  Experiment to find what works best.
+
+## Upcoming Features
+- Image description for single images
+- Video description using a sample of frames
+- Iterative search, allowing the user to filter photos further after the initial search
 
 ## License
 Distributed under the MIT License. See `LICENSE` for more information.
