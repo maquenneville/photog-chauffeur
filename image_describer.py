@@ -20,6 +20,7 @@ import re
 from PIL import Image, ImageDraw, ImageFont, ImageOps, UnidentifiedImageError
 from concurrent.futures import ThreadPoolExecutor
 import io
+import shutil
 
 
 
@@ -141,11 +142,25 @@ class MachineVisionBot:
                 return True
         except UnidentifiedImageError:
             return False
+        
+    def _cleanup_temp_images(self, folder_path):
+        """Delete the entire folder and its contents, then recreate the folder."""
+        try:
+            if os.path.exists(folder_path):
+                shutil.rmtree(folder_path)
+            os.makedirs(folder_path)  # Recreate the folder for future use
+        except Exception as e:
+            print(f"Failed to cleanup the folder {folder_path}. Reason: {e}")
     
     def add_filename_label_to_image(self, image_path):
         font_path = "C:\\Windows\\Fonts\\arial.ttf"  # Arial font path for Windows
+        temp_images_folder = "temp_images"  # Name of the temporary images folder
 
         try:
+            # Ensure the temp_images folder exists
+            if not os.path.exists(temp_images_folder):
+                os.makedirs(temp_images_folder)
+
             with Image.open(image_path) as img:
                 draw = ImageDraw.Draw(img)
 
@@ -167,14 +182,16 @@ class MachineVisionBot:
 
                 draw.text(text_position, filename, font=font, fill=(255, 255, 255))  # White text
 
-                # Generate the new file name
-                base, ext = os.path.splitext(image_path)
-                labeled_image_path = f"{base}_labeled{ext}"
+                # Generate the new file name in the temp_images folder
+                base = os.path.basename(image_path).split('.')[0]
+                ext = os.path.splitext(image_path)[1]
+                labeled_image_path = os.path.join(temp_images_folder, f"{base}_labeled{ext}")
 
-                # Save the edited image
+                # Save the edited image in the temp_images folder
                 img.save(labeled_image_path)
 
                 return labeled_image_path
+
         except Exception as e:
             print(f"An error occurred: {e}")
             return None
@@ -187,7 +204,6 @@ class MachineVisionBot:
         # Use ThreadPoolExecutor to process images concurrently
         with ThreadPoolExecutor() as executor:
             futures = [executor.submit(self.add_filename_label_to_image, image_path) for image_path in image_files]
-
             labeled_images = [future.result() for future in futures]
 
         return labeled_images
@@ -239,95 +255,81 @@ class MachineVisionBot:
             
             
     def visualize_multiple_images(self, folder_path, prompt, search=False):
-        # Label all images in the folder concurrently
-        labeled_image_paths = self.label_images_in_folder_concurrently(folder_path)
-        
-        # Encode labeled images
-        encoded_images = [self._encode_image(labeled_path) for labeled_path in labeled_image_paths if labeled_path]
-        
+        temp_images_folder = "temp_images"  # Define the temp_images folder
 
-        if search:
-            prompt = f"Search Query: {prompt}" + """
+        try:
+            # Label all images in the folder concurrently
+            self.label_images_in_folder_concurrently(folder_path)
             
-            Use the filename labels present in the bottom left corner of each image to provide file names that fit the search parameters best. Ensure that the results of this search are returned in valid JSON containing the file names of the search result images, with this format:
-                {
-                    "search_results": [list of file names as string values]
-                }
-            
-            If none of the images fit the search, return the correct JSON object with an empty array value for "search_results".
-            """
+            # Encode labeled images
+            encoded_images = [self._encode_image(os.path.join(temp_images_folder, f))
+                              for f in os.listdir(temp_images_folder)
+                              if os.path.isfile(os.path.join(temp_images_folder, f))]
 
-        
-        retry_attempts = 0
-        max_retries = 5
-        backoff_factor = 2
-        max_tokens = 4090  # Adjust as needed
-        
-        while retry_attempts < max_retries:
-            try:
-                response = openai.ChatCompletion.create(
-                    model=self.model,
-                    messages=[
-                        {
-                            "role": "user",
-                            "content": [
-                                {"type": "text", "text": prompt},
-                                *map(lambda x: {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{x}"}}, encoded_images)
-                            ]
-                        }
-                    ],
-                    max_tokens=max_tokens
-                )
-
-                if search:
-                    result = self._find_and_convert_json(response.choices[0].message.content)
-                else:
-                    result = response.choices[0].message.content
-                return result
-
-            except OpenAIError as e:
-                if 'rate limit' in str(e):
-                    time_to_wait = (backoff_factor ** retry_attempts) + random.uniform(0, 1)
-                    print(f"Rate limit hit, waiting {time_to_wait} seconds to retry...")
-                    time.sleep(time_to_wait)
-                    retry_attempts += 1
-                    if retry_attempts >= max_retries:
-                        raise Exception("Max retries reached for rate limit errors.")
-                else:
-                    for labeled_path in labeled_image_paths:
-                        try:
-                            os.remove(labeled_path)
-                        except:
-                            continue
-
-            except Exception as e:
-                print(f"An error occurred: {e}")
-                for labeled_path in labeled_image_paths:
-                    try:
-                        os.remove(labeled_path)
-                    except:
-                        continue
-                break
+            if search:
+                prompt = f"Search Query: {prompt}" + """
                 
-            except KeyboardInterrupt as e:
-                # Cleanup: Delete the labeled images
-                for labeled_path in labeled_image_paths:
-                    try:
-                        os.remove(labeled_path)
-                    except:
-                        continue
-    
-            # Cleanup: Delete the labeled images
-            for labeled_path in labeled_image_paths:
+                Use the filename labels present in the bottom left corner of each image to provide file names that fit the search parameters best. Ensure that the results of this search are returned in valid JSON containing the file names of the search result images, with this format:
+                    {
+                        "search_results": [list of file names as string values]
+                    }
+                
+                If none of the images fit the search, return the correct JSON object with an empty array value for "search_results".
+                """
+
+            retry_attempts = 0
+            max_retries = 5
+            backoff_factor = 2
+            max_tokens = 4090  # Adjust as needed
+            
+            while retry_attempts < max_retries:
                 try:
-                    os.remove(labeled_path)
-                except:
-                    continue
-    
-            if retry_attempts < max_retries:
-                return result
-            else:
-                return None
+                    response = openai.ChatCompletion.create(
+                        model=self.model,
+                        messages=[
+                            {
+                                "role": "user",
+                                "content": [
+                                    {"type": "text", "text": prompt},
+                                    *map(lambda x: {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{x}"}}, encoded_images)
+                                ]
+                            }
+                        ],
+                        max_tokens=max_tokens
+                    )
+
+                    if search:
+                        result = self._find_and_convert_json(response.choices[0].message.content)
+                    else:
+                        result = response.choices[0].message.content
+
+                except OpenAIError as e:
+                    if 'rate limit' in str(e):
+                        time_to_wait = (backoff_factor ** retry_attempts) + random.uniform(0, 1)
+                        print(f"Rate limit hit, waiting {time_to_wait} seconds to retry...")
+                        time.sleep(time_to_wait)
+                        retry_attempts += 1
+                        if retry_attempts >= max_retries:
+                            raise Exception("Max retries reached for rate limit errors.")
+                    else:
+                        raise e
+
+                except Exception as e:
+                    print(f"An error occurred: {e}")
+                    break
+
+                finally:
+                    # Cleanup: Delete all files in the temp_images folder
+                    self._cleanup_temp_images(temp_images_folder)
+
+                if retry_attempts < max_retries:
+                    return result
+
+            return None
+
+        finally:
+            # Final Cleanup: Ensure all files in the temp_images folder are deleted
+            self._cleanup_temp_images(temp_images_folder)
         
 
     def describe_video(self, video, frame_skip=50):
