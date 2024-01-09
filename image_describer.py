@@ -152,6 +152,52 @@ class MachineVisionBot:
         except Exception as e:
             print(f"Failed to cleanup the folder {folder_path}. Reason: {e}")
     
+# =============================================================================
+#     def add_filename_label_to_image(self, image_path):
+#         font_path = "C:\\Windows\\Fonts\\arial.ttf"  # Arial font path for Windows
+#         temp_images_folder = "temp_images"  # Name of the temporary images folder
+# 
+#         try:
+#             # Ensure the temp_images folder exists
+#             if not os.path.exists(temp_images_folder):
+#                 os.makedirs(temp_images_folder)
+# 
+#             with Image.open(image_path) as img:
+#                 draw = ImageDraw.Draw(img)
+# 
+#                 # Extract filename with extension
+#                 filename = os.path.basename(image_path)
+# 
+#                 # Calculate font size as a proportion of image width
+#                 font_size = int(img.width / 30)  # Adjust the ratio as needed
+#                 font = ImageFont.truetype(font_path, font_size)
+# 
+#                 # Calculate text width and height using textbbox
+#                 text_bbox = draw.textbbox((0, 0), filename, font=font)
+#                 text_width = text_bbox[2] - text_bbox[0]
+#                 text_height = text_bbox[3] - text_bbox[1]
+# 
+#                 # Adjust text_position to move the label up and to the left
+#                 offset = 20  # Pixels to move the label up and to the left, adjust as needed
+#                 text_position = (img.width - text_width - offset, img.height - text_height - (offset + 20))
+# 
+#                 draw.text(text_position, filename, font=font, fill=(255, 255, 255))  # White text
+# 
+#                 # Generate the new file name in the temp_images folder
+#                 base = os.path.basename(image_path).split('.')[0]
+#                 ext = os.path.splitext(image_path)[1]
+#                 labeled_image_path = os.path.join(temp_images_folder, f"{base}_labeled{ext}")
+# 
+#                 # Save the edited image in the temp_images folder
+#                 img.save(labeled_image_path)
+# 
+#                 return labeled_image_path
+# 
+#         except Exception as e:
+#             print(f"An error occurred: {e}")
+#             return None
+# =============================================================================
+        
     def add_filename_label_to_image(self, image_path):
         font_path = "C:\\Windows\\Fonts\\arial.ttf"  # Arial font path for Windows
         temp_images_folder = "temp_images"  # Name of the temporary images folder
@@ -180,7 +226,13 @@ class MachineVisionBot:
                 offset = 20  # Pixels to move the label up and to the left, adjust as needed
                 text_position = (img.width - text_width - offset, img.height - text_height - (offset + 20))
 
-                draw.text(text_position, filename, font=font, fill=(255, 255, 255))  # White text
+                # Draw text with black border
+                border_offset = 10 # Adjust for thicker or thinner border
+                for dx in range(-border_offset, border_offset + 1):
+                    for dy in range(-border_offset, border_offset + 1):
+                        draw.text((text_position[0] + dx, text_position[1] + dy), filename, font=font, fill=(0, 0, 0))  # Black text (border)
+
+                draw.text(text_position, filename, font=font, fill=(255, 255, 255))  # White text (center)
 
                 # Generate the new file name in the temp_images folder
                 base = os.path.basename(image_path).split('.')[0]
@@ -379,7 +431,7 @@ class MachineVisionBot:
                 break
             
             
-#descriptor = MachineVisionBot()
+descriptor = MachineVisionBot()
 
 #print(descriptor.describe_image(image=r"C:\Users\marca\Pictures\Saved Pictures\DSC02309.JPG"))
 
@@ -390,3 +442,5 @@ class MachineVisionBot:
 #descriptor.add_filename_label_to_image(image_path=r"C:\Users\marca\Desktop\Coding\AI\General Classes\test_images\DSC02312.JPG")
 
 #descriptor.label_images_in_folder_concurrently(folder_path=r"C:\Users\marca\Desktop\Coding\AI\General Classes\test_images")
+
+descriptor.add_filename_label_to_image(image_path=r"C:\Users\marca\Desktop\Coding\AI\MachineVision\search_results\DSC02347.JPG")
