@@ -42,15 +42,15 @@ Run the program using Python:
 python main.py
 ```
 
-Follow the on-screen prompts to enter the folder paths and search queries. Type 'exit' to terminate the program.
+Follow the on-screen prompts to enter the folder paths, queries, image and video files. Type 'exit' to terminate the program.
 
 ## Limitations
 This tool is not perfect at applying the search query, and is only as powerful as the machine vision capabilities of gpt-4-vision-preview.  It may take multiple attempts with different phrasing, or simply not be able to find images with certain parameters.  Experiment to find what works best.
 
 ## Upcoming Features
-- Image description for single images
-- Video description using a sample of frames
-- Iterative search, allowing the user to filter photos further after the initial search
+- [x] Image description for single images 
+- [x] Video description using a sample of frames
+- [ ]Iterative search, allowing the user to filter photos further after the initial search
 
 ## License
 Distributed under the MIT License. See `LICENSE` for more information.
