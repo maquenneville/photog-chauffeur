@@ -431,7 +431,7 @@ class MachineVisionBot:
                 break
             
             
-descriptor = MachineVisionBot()
+#descriptor = MachineVisionBot()
 
 #print(descriptor.describe_image(image=r"C:\Users\marca\Pictures\Saved Pictures\DSC02309.JPG"))
 
@@ -443,4 +443,4 @@ descriptor = MachineVisionBot()
 
 #descriptor.label_images_in_folder_concurrently(folder_path=r"C:\Users\marca\Desktop\Coding\AI\General Classes\test_images")
 
-descriptor.add_filename_label_to_image(image_path=r"C:\Users\marca\Desktop\Coding\AI\MachineVision\search_results\DSC02347.JPG")
+#descriptor.add_filename_label_to_image(image_path=r"C:\Users\marca\Desktop\Coding\AI\MachineVision\search_results\DSC02347.JPG")
