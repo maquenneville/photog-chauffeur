@@ -386,7 +386,6 @@ class MachineVisionBot:
 
     def describe_video(self, video, frame_skip=50):
         base64_frames = self._encode_video_frames(video, frame_skip)
-        print(base64_frames)
         retry_attempts = 0
         max_retries = 5
         backoff_factor = 2
@@ -413,7 +412,7 @@ class MachineVisionBot:
                     max_tokens=max_tokens
                 )
 
-                return response
+                return response.choices[0].message.content
 
             except OpenAIError as e:
                 if 'rate limit' in str(e):
