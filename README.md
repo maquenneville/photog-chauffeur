@@ -50,7 +50,7 @@ This tool is not perfect at applying the search query, and is only as powerful a
 ## Upcoming Features
 - [x] Image description for single images 
 - [x] Video description using a sample of frames
-- [ ]Iterative search, allowing the user to filter photos further after the initial search
+- [ ] Iterative search, allowing the user to filter photos further after the initial search
 
 ## License
 Distributed under the MIT License. See `LICENSE` for more information.
