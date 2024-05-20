@@ -6,7 +6,8 @@ Created on Mon Dec 11 23:15:56 2023
 """
 
 import openai
-from openai.error import RateLimitError, InvalidRequestError, APIError, OpenAIError
+from openai import OpenAI
+#from openai.error import RateLimitError, InvalidRequestError, APIError, OpenAIError
 import time
 import configparser
 import tiktoken
@@ -35,7 +36,8 @@ class MachineVisionBot:
     def __init__(self, image_prompt=None, video_prompt=None):
         self.openai_api_key = self._get_api_keys("config.ini")
         openai.api_key = self.openai_api_key
-        self.model = "gpt-4-vision-preview"
+        self.client = OpenAI(api_key=self.openai_api_key)
+        self.model = "gpt-4o"
         
         if image_prompt:
             self.image_prompt = image_prompt
@@ -273,7 +275,7 @@ class MachineVisionBot:
 
         while retry_attempts < max_retries:
             try:
-                response = openai.ChatCompletion.create(
+                response = self.client.chat.completions.create(
                     model=self.model,
                     messages=[
                         {
@@ -289,7 +291,7 @@ class MachineVisionBot:
 
                 return response.choices[0].message.content
 
-            except OpenAIError as e:
+            except Exception as e:
                 if 'rate limit' in str(e):
                     time_to_wait = (backoff_factor ** retry_attempts) + random.uniform(0, 1)
                     print(f"Rate limit hit, waiting {time_to_wait} seconds to retry...")
@@ -301,9 +303,11 @@ class MachineVisionBot:
                     raise e
 
 
-            except Exception as e:
-                print(f"An error occurred: {e}")
-                break
+# =============================================================================
+#             except Exception as e:
+#                 print(f"An error occurred: {e}")
+#                 break
+# =============================================================================
             
             
     def visualize_multiple_images(self, folder_path, prompt, search=False):
@@ -336,7 +340,7 @@ class MachineVisionBot:
             
             while retry_attempts < max_retries:
                 try:
-                    response = openai.ChatCompletion.create(
+                    response = self.client.chat.completions.create(
                         model=self.model,
                         messages=[
                             {
@@ -355,7 +359,7 @@ class MachineVisionBot:
                     else:
                         result = response.choices[0].message.content
 
-                except OpenAIError as e:
+                except Exception as e:
                     if 'rate limit' in str(e):
                         time_to_wait = (backoff_factor ** retry_attempts) + random.uniform(0, 1)
                         print(f"Rate limit hit, waiting {time_to_wait} seconds to retry...")
@@ -366,9 +370,11 @@ class MachineVisionBot:
                     else:
                         raise e
 
-                except Exception as e:
-                    print(f"An error occurred: {e}")
-                    break
+# =============================================================================
+#                 except Exception as e:
+#                     print(f"An error occurred: {e}")
+#                     break
+# =============================================================================
 
                 finally:
                     # Cleanup: Delete all files in the temp_images folder
@@ -398,7 +404,7 @@ class MachineVisionBot:
 
         while retry_attempts < max_retries:
             try:
-                response = openai.ChatCompletion.create(
+                response = self.client.chat.completions.create(
                     model=self.model,
                     messages=[
                         {
@@ -414,7 +420,7 @@ class MachineVisionBot:
 
                 return response.choices[0].message.content
 
-            except OpenAIError as e:
+            except Exception as e:
                 if 'rate limit' in str(e):
                     time_to_wait = (backoff_factor ** retry_attempts) + random.uniform(0, 1)
                     print(f"Rate limit hit, waiting {time_to_wait} seconds to retry...")
@@ -425,9 +431,11 @@ class MachineVisionBot:
                 else:
                     raise e
 
-            except Exception as e:
-                print(f"An error occurred: {e}")
-                break
+# =============================================================================
+#             except Exception as e:
+#                 print(f"An error occurred: {e}")
+#                 break
+# =============================================================================
             
             
 #descriptor = MachineVisionBot()
