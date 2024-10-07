@@ -15,8 +15,8 @@ def main():
 
     # Get the folder paths from the user
     image_folder = input("Enter the folder path containing images/videos: ")
-    results_folder = input("Enter the folder path for saving search results (to skip, enter 'n'): ")
-
+    #results_folder = input("Enter the folder path for saving search results (to skip, enter 'n'): ")
+    results_folder = "search_results"
     while True:
         # Get the search query from the user
         print("""
@@ -38,14 +38,15 @@ def main():
             
             query = input("Enter your search query (or type 'exit' to quit): ")
             
-            if results_folder == "n":
+            # if results_folder == "n":
                 
-                results_folder = input("Enter the folder path for saving search results: ")
+            #     results_folder = input("Enter the folder path for saving search results: ")
     
             try:
                 # Use the bot to visualize and search within multiple images
+                print("Visualizing images...")
                 search_result = bot.visualize_multiple_images(image_folder, query, search=True)
-    
+                print("Found images matching search:")
                 # Print the search result in JSON format
                 print(json.dumps(search_result, indent=4))
     
@@ -54,6 +55,8 @@ def main():
                 if save_results == 'y':
                     if 'search_results' in search_result:
                         filenames = search_result['search_results']
+
+                        print("Saving image results...")
                         copy_found_images(filenames, image_folder, results_folder)
                     else:
                         print("No valid search results to save.")
@@ -69,6 +72,7 @@ def main():
             
             image_path = image_folder + f"\\{image_filename}"
             
+            print("Visualizing image...")
             description = bot.describe_image(image=image_path)
             
             print(f"""Image Description:
@@ -84,6 +88,7 @@ def main():
             
             video_path = image_folder + f"\\{video_filename}"
             
+            print("Visualizing video...")
             description = bot.describe_video(video=video_path)
             
             print(f"""Video Description:

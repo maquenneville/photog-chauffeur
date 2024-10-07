@@ -28,6 +28,7 @@ def copy_found_images(filenames, source_folder, output_folder):
         # Check if the file exists in the source folder
         if os.path.exists(source_file):
             shutil.copy2(source_file, output_file)
-            print(f"Copied '{filename}' to '{output_folder}'.")
+            #print(f"Copied '{filename}' to '{output_folder}'.")
         else:
             print(f"File '{filename}' not found in '{source_folder}'.")
+    print(f"images saved to {output_folder}")
