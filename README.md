@@ -40,13 +40,13 @@ PhotogChauffeur is a Python-based tool that allows users to search through a col
 Run the program using Python:
 
 ```
-python main.py
+python vision_search_ui.py
 ```
 
 Follow the on-screen prompts to enter the folder paths, queries, image and video files. Type 'exit' to terminate the program.
 
 ## Limitations
-This tool is not perfect at applying the search query, and is only as powerful as the machine vision capabilities of gpt-4-vision-preview.  It may take multiple attempts with different phrasing, or simply not be able to find images with certain parameters.  Experiment to find what works best.
+This tool is not perfect at applying the search query, and is only as powerful as the machine vision capabilities of gpt-4o.  It may take multiple attempts with different phrasing, or simply not be able to find images with certain parameters.  Experiment to find what works best.
 
 ## Upcoming Features
 - [x] Image description for single images 
